@@ -2,6 +2,7 @@
 
 const ev = Symbol('EventEmitter.events');
 const def = Object.defineProperty;
+const slice = [].slice;
 
 class EventEmitter {
   constructor(events) {
@@ -53,12 +54,12 @@ class EventEmitter {
   }
 }
 
-function emit(name, $1, $2) {
+function emit(name, $1, $2, $3) {
   if (typeof name !== 'string' || name === '') {
     throw Error('Invalid event name: ' + (JSON.stringify(name) || String(name)));
   }
   const list = this[ev][name];
-  if (list) { 
+  if (list) {
     let i = 0, len = list.length;
     switch (arguments.length) {
       case 1:
@@ -70,6 +71,12 @@ function emit(name, $1, $2) {
       case 3:
         for (; i < len; i++) list[i]($1, $2);
         break;
+      case 4:
+        for (; i < len; i++) list[i]($1, $2, $3);
+        break;
+      default:
+        const args = slice.call(arguments, 1);
+        for (; i < len; i++) list[i](...args);
     }
     return true;
   }

@@ -19,7 +19,7 @@ const foo = ee.on('foo', () => {});
 // Remove a listener.
 ee.off('foo', foo);
 
-// Emit up to two arguments.
+// Emit as many arguments as you like.
 ee.emit('foo', 1, 2);
 
 // Remove all listeners for an event.
