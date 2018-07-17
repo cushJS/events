@@ -1,6 +1,7 @@
+const slice = require('lodash.slice');
+
 const ev = Symbol('EventEmitter.events');
 const def = Object.defineProperty;
-const slice = [].slice;
 
 class EventEmitter {
   constructor(events) {
@@ -67,7 +68,7 @@ function emit(name, $1, $2, $3) {
         for (; i < len; i++) list[i]($1, $2, $3);
         break;
       default:
-        const args = slice.call(arguments, 1);
+        const args = slice(arguments, 1);
         for (; i < len; i++) list[i](...args);
     }
     return true;
