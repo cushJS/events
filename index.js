@@ -2,6 +2,8 @@ const slice = require('lodash.slice');
 
 const ev = Symbol('EventEmitter.events');
 const def = Object.defineProperty;
+const resolved = Promise.resolve();
+const emptyArray = [];
 
 class EventEmitter {
   constructor(events) {
@@ -47,37 +49,59 @@ class EventEmitter {
   }
 }
 
-function emit(name, $1, $2, $3) {
+function emit(list, args) {
+  let i = 0, len = list.length;
+  switch (args.length) {
+    case 0:
+      for (; i < len; i++) list[i]();
+      break;
+    case 1:
+      for (; i < len; i++) list[i](args[0]);
+      break;
+    case 2:
+      for (; i < len; i++) list[i](args[0], args[1]);
+      break;
+    default:
+      for (; i < len; i++) list[i](...args);
+  }
+}
+
+function emitSync(name) {
+  if (typeof name !== 'string' || name === '') {
+    throw Error('Invalid event name: ' + (JSON.stringify(name) || String(name)));
+  }
+  const list = this[ev][name];
+  if (!list) return false;
+  emit(list, arguments.length == 1 ? emptyArray : slice(arguments, 1));
+  return true;
+}
+
+function emitAsync(name) {
   if (typeof name !== 'string' || name === '') {
     throw Error('Invalid event name: ' + (JSON.stringify(name) || String(name)));
   }
   const list = this[ev][name];
   if (list) {
-    let i = 0, len = list.length;
-    switch (arguments.length) {
-      case 1:
-        for (; i < len; i++) list[i]();
-        break;
-      case 2:
-        for (; i < len; i++) list[i]($1);
-        break;
-      case 3:
-        for (; i < len; i++) list[i]($1, $2);
-        break;
-      case 4:
-        for (; i < len; i++) list[i]($1, $2, $3);
-        break;
-      default:
-        const args = slice(arguments, 1);
-        for (; i < len; i++) list[i](...args);
-    }
+    const args = arguments;
+    resolved.then(() => {
+      try {
+        emit(list, args.length == 1 ? emptyArray : slice(args, 1));
+      } catch(error) {
+        this.emitSync('error', error) ||
+          setTimeout(function() {
+            throw error;
+          });
+      }
+    });
     return true;
   }
   return false;
 }
 
 Object.assign(EventEmitter.prototype, {
-  emit,
+  emit: emitAsync, // async by default
+  emitSync,
+  emitAsync,
 });
 
 module.exports = EventEmitter;
