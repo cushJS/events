@@ -123,4 +123,8 @@ if (typeof process !== 'undefined' && /\bevents\b/.test(process.env.DEBUG)) {
 
 Object.assign(EventEmitter.prototype, emitMethods);
 
+def(EventEmitter, 'ev', {
+  value: ev
+});
+
 module.exports = EventEmitter;
