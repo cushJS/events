@@ -1,5 +1,3 @@
-'use strict';
-
 const ev = Symbol('EventEmitter.events');
 const def = Object.defineProperty;
 const slice = [].slice;
