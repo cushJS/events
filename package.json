@@ -1,6 +1,6 @@
 {
   "name": "@cush/events",
-  "version": "0.0.2",
+  "version": "1.0.0",
   "license": "MIT",
   "repository": "https://github.com/cushJS/events.git",
   "description": "Tiny event emitter",

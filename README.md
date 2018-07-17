@@ -1,4 +1,4 @@
-# @cush/events v0.0.2
+# @cush/events v1.0.0
 
 Tiny event emitter
 
