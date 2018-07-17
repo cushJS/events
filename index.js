@@ -22,18 +22,12 @@ class EventEmitter {
     return list ? list.length : 0;
   }
   on(name, fn) {
-    if (arguments.length == 1) {
-      fn = name; name = '*';
-    }
     const list = this[ev][name];
     if (list) list.push(fn);
     else this[ev][name] = [fn];
     return fn;
   }
   off(name, fn) {
-    if (arguments.length == 1) {
-      fn = name; name = '*';
-    }
     const list = this[ev][name];
     if (!list) return;
     if (list.length !== 1) {
@@ -83,10 +77,6 @@ function emit(name, $1, $2, $3) {
 
 Object.assign(EventEmitter.prototype, {
   emit,
-  wildEmit(...args) {
-    emit.apply(this, args);
-    return emit.call(this, '*', ...args);
-  }
 });
 
 module.exports = EventEmitter;
