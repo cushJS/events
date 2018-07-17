@@ -98,10 +98,29 @@ function emitAsync(name) {
   return false;
 }
 
-Object.assign(EventEmitter.prototype, {
+EventEmitter.debug = function(emitter) {
+  if (emitter == null) emitter = EventEmitter.prototype;
+  [emitSync, emitAsync].forEach(emit => {
+    emitter[emit.name] = function() {
+      const args = slice(arguments);
+      emitSync.call(this, 'emit', args);
+      return emit.apply(this, args);
+    };
+  });
+  emitter.emit = emitter[emitter.emit.name];
+  return emitter;
+};
+
+const emitMethods = {
   emit: emitAsync, // async by default
   emitSync,
   emitAsync,
-});
+};
+
+if (typeof process !== 'undefined' && /\bevents\b/.test(process.env.DEBUG)) {
+  Emitter.debug(emitMethods);
+}
+
+Object.assign(EventEmitter.prototype, emitMethods);
 
 module.exports = EventEmitter;
