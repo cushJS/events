@@ -1,5 +1,3 @@
-const slice = require('lodash.slice');
-
 const ev = Symbol('EventEmitter.events');
 const def = Object.defineProperty;
 const resolved = Promise.resolve();
@@ -50,59 +48,52 @@ class EventEmitter {
 }
 
 function emit(list, args) {
-  let i = 0, len = list.length;
-  switch (args.length) {
-    case 0:
-      for (; i < len; i++) list[i]();
-      break;
-    case 1:
-      for (; i < len; i++) list[i](args[0]);
-      break;
-    case 2:
-      for (; i < len; i++) list[i](args[0], args[1]);
-      break;
-    default:
-      for (; i < len; i++) list[i](...args);
+  if (list) {
+    let i = 0, len = list.length;
+    switch (args.length) {
+      case 0:
+        for (; i < len; i++) list[i]();
+        break;
+      case 1:
+        for (; i < len; i++) list[i](args[0]);
+        break;
+      case 2:
+        for (; i < len; i++) list[i](args[0], args[1]);
+        break;
+      default:
+        for (; i < len; i++) list[i](...args);
+    }
   }
-}
-
-function emitSync(name) {
-  if (typeof name !== 'string' || name === '') {
-    throw Error('Invalid event name: ' + (JSON.stringify(name) || String(name)));
-  }
-  const list = this[ev][name];
-  if (!list) return false;
-  emit(list, arguments.length == 1 ? emptyArray : slice(arguments, 1));
   return true;
 }
 
-function emitAsync(name) {
+function emitSync(name, ...args) {
   if (typeof name !== 'string' || name === '') {
     throw Error('Invalid event name: ' + (JSON.stringify(name) || String(name)));
   }
-  const list = this[ev][name];
-  if (list) {
-    const args = arguments;
-    resolved.then(() => {
-      try {
-        emit(list, args.length == 1 ? emptyArray : slice(args, 1));
-      } catch(error) {
-        this.emitSync('error', error) ||
-          setTimeout(function() {
-            throw error;
-          });
-      }
-    });
-    return true;
+  return emit(this[ev][name], args);
+}
+
+function emitAsync(name, ...args) {
+  if (typeof name !== 'string' || name === '') {
+    throw Error('Invalid event name: ' + (JSON.stringify(name) || String(name)));
   }
-  return false;
+  return resolved.then(() => {
+    try {
+      return emit(this[ev][name], args);
+    } catch(error) {
+      this.emitSync('error', error) ||
+        setTimeout(function() {
+          throw error;
+        });
+    }
+  });
 }
 
 EventEmitter.debug = function(emitter) {
   if (emitter == null) emitter = EventEmitter.prototype;
   [emitSync, emitAsync].forEach(emit => {
-    emitter[emit.name] = function() {
-      const args = slice(arguments);
+    emitter[emit.name] = function(...args) {
       emitSync.call(this, 'emit', args);
       return emit.apply(this, args);
     };

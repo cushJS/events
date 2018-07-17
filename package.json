@@ -6,8 +6,5 @@
   "description": "Tiny event emitter",
   "engines": {
     "node": ">=6"
-  },
-  "dependencies": {
-    "lodash.slice": "^4.2.0"
   }
 }
