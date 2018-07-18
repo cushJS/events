@@ -63,8 +63,9 @@ function emit(list, args) {
       default:
         for (; i < len; i++) list[i](...args);
     }
+    return true;
   }
-  return true;
+  return false;
 }
 
 function emitSync(name, ...args) {
