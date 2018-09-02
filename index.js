@@ -11,28 +11,28 @@ class EventEmitter {
     });
 
     if (events) {
-      for (const event in events) {
-        const list = events[event];
+      for (let event in events) {
+        let list = events[event];
         this[ev][event] =
           typeof list == 'function' ? [list] : list;
       }
     }
   }
   listenerCount(name) {
-    const list = this[ev][name];
+    let list = this[ev][name];
     return list ? list.length : 0;
   }
   on(name, fn) {
-    const list = this[ev][name];
+    let list = this[ev][name];
     if (list) list.push(fn);
     else this[ev][name] = [fn];
     return fn;
   }
   off(name, fn) {
-    const list = this[ev][name];
+    let list = this[ev][name];
     if (!list) return;
     if (list.length !== 1) {
-      const i = list.indexOf(fn);
+      let i = list.indexOf(fn);
       if (i !== -1) list.splice(i, 1);
     } else if (list[0] == fn) {
       delete this[ev][name];
